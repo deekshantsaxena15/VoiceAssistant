@@ -62,4 +62,18 @@ speak("Hello, I am your voice assistant. How can I help you?")
 
 command = listen()
 
-print("Command received:", command)
+
+if "youtube" in command:
+    speak("Opening YouTube")
+    webbrowser.open("https://www.youtube.com")
+
+elif "google" in command:
+    speak("Opening Google")
+    webbrowser.open("https://www.google.com")
+
+elif "time" in command:
+    current_time = datetime.now().strftime("%I:%M %p")
+    speak("The current time is " + current_time)
+
+else:
+    speak("Sorry, I don't know how to do that yet.")
