@@ -8,8 +8,6 @@ from urllib.parse import quote
 
 # Set up speech recognition
 recognizer = sr.Recognizer()
-
-# Set a maximum time for the speech recognition request
 recognizer.operation_timeout = 10
 
 # Set up text-to-speech
@@ -53,7 +51,7 @@ def listen():
         return text.lower()
 
     except sr.UnknownValueError:
-        speak("Sorry, I could not understand you.")
+        speak("Sorry, I could not understand you. Please try again.")
         return ""
 
     except sr.RequestError:
@@ -76,21 +74,59 @@ def search_youtube(query):
     webbrowser.open(url)
 
 
+def extract_search_query(command):
+    query = command
+
+    words_to_remove = [
+        "can you",
+        "could you",
+        "please",
+        "i want you to",
+        "i want to",
+        "search",
+        "find",
+        "look up",
+        "look for",
+        "search for",
+        "google",
+        "youtube",
+        "on",
+        "for"
+    ]
+
+    for word in words_to_remove:
+        query = query.replace(word, " ")
+
+    query = " ".join(query.split())
+
+    return query.strip()
+
+
 def handle_command(command):
 
+    # Greeting
+    if "hello" in command or "hi" in command:
+        speak("Hello! How can I help you?")
+        return True
+
     # Exit assistant
-    if any(word in command for word in ["exit", "quit", "stop", "goodbye"]):
+    if any(word in command for word in [
+        "exit",
+        "quit",
+        "stop",
+        "goodbye"
+    ]):
         speak("Goodbye!")
         return False
 
-    # Search Google
-    if "google" in command and "search" in command:
-        query = command
-
-        for word in ["search", "google", "for", "on"]:
-            query = query.replace(word, "")
-
-        query = query.strip()
+    # Google search
+    if "google" in command and any(word in command for word in [
+        "search",
+        "find",
+        "look up",
+        "look for"
+    ]):
+        query = extract_search_query(command)
 
         if query:
             speak("Searching Google for " + query)
@@ -100,18 +136,17 @@ def handle_command(command):
 
         return True
 
-    # Search YouTube
-    if "youtube" in command and "search" in command:
-        query = command
-
-        for word in ["search", "youtube", "for", "on"]:
-            query = query.replace(word, "")
-
-        query = query.strip()
+    # YouTube search
+    if "youtube" in command and any(word in command for word in [
+        "search",
+        "find",
+        "look up",
+        "look for"
+    ]):
+        query = extract_search_query(command)
 
         if query:
             speak("Searching YouTube for " + query)
-            search_youtube(query)
         else:
             speak("What would you like me to search for?")
 
